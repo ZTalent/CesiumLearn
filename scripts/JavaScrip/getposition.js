@@ -28,6 +28,9 @@ var terrainModels = Cesium.createDefaultTerrainProviderViewModels();
 viewer._cesiumWidget._creditContainer.style.display = "none";
 viewer.scene.debugShowFramesPerSecond = false;
 
+var draw = new DrawPolt({
+		viewer:viewer
+	});
 
 var globe = viewer.scene.globe;
 
@@ -64,8 +67,6 @@ var boundingSphere = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(111
 
 // Set custom initial position
 viewer.camera.flyToBoundingSphere(boundingSphere, { duration: 0 });
-
-
 var x = 360.0;
 var y = -890.0;
 var z = -870.0;
@@ -261,62 +262,25 @@ function zoomToTileset() {
 function change(type) {
     switch (type) {
         case 0:
-		handler.setInputAction(function (movement) {
-		    var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-			 if(Cesium.defined(position))
-			 {
-				 createPoint(position);
-			 }
-		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		// handler.setInputAction(function (movement) {
+		//     var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+		// 	 if(Cesium.defined(position))
+		// 	 {
+		// 		 createPoint(position);
+		// 	 }
+		// }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		
+				draw.create(1);
             break;
         case 1:
-		  handler.setInputAction(function (movement) {
-		  	var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-		  	// `earthPosition` will be undefined if our mouse is not over the globe.
-		  	if (Cesium.defined(position)) {
-		  		 if (activeShapePoints.length === 0) {
-		  			  activeShapePoints.push(position);
-		  			  var dynamicPositions = new Cesium.CallbackProperty(function () {
-		  				  if (drawingMode === 'polygon') {
-		  				  return new Cesium.Polyline(activeShapePoints);
-		  				 }
-		  					return activeShapePoints;
-		  			  }, false);
-		  			  activeShape = drawShape(dynamicPositions); //绘制动态图
-		  		 }
-		  		 activeShapePoints.push(position);
-		  		 createPoints(position);
-		  	}
-		  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		terminateShape();
-		drawingMode='line';
-            break;
+			draw.create(2);
+         break;
         case 2:
-		  handler.setInputAction(function (movement) {
-		  	var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-		  	// `earthPosition` will be undefined if our mouse is not over the globe.
-		  	if (Cesium.defined(position)) {
-		  		 if (activeShapePoints.length === 0) {
-		  			  //floatingPoint = createPoints(earthPosition);
-		  			  activeShapePoints.push(position);
-		  			  var dynamicPositions = new Cesium.CallbackProperty(function () {
-		  				  if (drawingMode === 'polygon') {
-		  				  return new Cesium.PolygonHierarchy(activeShapePoints);
-		  				 }
-		  					return activeShapePoints;
-		  			  }, false);
-		  			  activeShape = drawShape(dynamicPositions); //绘制动态图
-		  		 }
-		  		 activeShapePoints.push(position);
-		  		 createPoints(position);
-		  	}
-		  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		  terminateShape();
-		  drawingMode='polygon';
-            break;
+		  draw.create(3);
+        break;
         case 3:
-            handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
-            break;
+        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
+        break;
     }
 }
 
@@ -369,15 +333,12 @@ function changeModelVisible(){
 }
 
 //删除所有Entity保留模型
-function deleteEntities() {
-	var entitys = viewer.entities._entities._array;
-	for (var i = 0; i < entitys.length; i++) {
-		if(!entitys[i]._name)
-		{ 
-			viewer.entities.remove(entitys[i]);
-			i--;
-		}
-	}           
+function deleteOneEntity() {
+	draw.clearOne();
+}
+
+function deleteAllEntities(){
+	draw.clearAll();
 }
 
 var blueBox=viewer.entities.add({
@@ -428,7 +389,8 @@ yellowBox.description='\
 /***************************************计算两点线之间线的距离********************************************************************/
 function calculateLineLength()
 {
-	measureLineSpace(viewer,handler);
+	var handler1 = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+	measureLineSpace(viewer,handler1);
 }
 
 
@@ -463,8 +425,6 @@ handler.setInputAction(function (movement) {
 	//cartesian = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
 	//let ray = window.viewer.camera.getPickRay(movement.endPosition);
 	//cartesian = window.viewer.scene.globe.pick(ray, viewer.scene);
-	
-	console.log(cartesian);
 	if (positions.length == 0) {
 	  positions.push(cartesian.clone());
 	}
@@ -552,52 +512,39 @@ handler.setInputAction(function (movement) {
 /***************************************计算区域面积********************************************************************/
 function calculateAreaSpace()
 {
-	measureAreaSpace(viewer,handler);
+	var handler2 = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+	measureAreaSpace(viewer,handler2);
 }
 
 function measureAreaSpace(viewer, handler){  
   // 取消双击事件-追踪该位置
   viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   // 鼠标事件
-    // handler = new Cesium.ScreenSpaceEventHandler(viewer.scene._imageryLayerCollection);
     var positions = [];
     var tempPoints = [];
     var polygon = null;
-    // var tooltip = document.getElementById("toolTip");
     var cartesian = null;
     var floatingPoint;//浮动点
-    // tooltip.style.display = "block";
     
     handler.setInputAction(function(movement){
-        // tooltip.style.left = movement.endPosition.x + 3 + "px";
-        // tooltip.style.top = movement.endPosition.y - 25 + "px";
-    // tooltip.innerHTML ='<p>单击开始，右击结束</p>';
-        // cartesian = viewer.scene.pickPosition(movement.endPosition); 
       let ray = viewer.camera.getPickRay(movement.endPosition);
       cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-        //cartesian = viewer.scene.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
         if(positions.length >= 2){
             if (!Cesium.defined(polygon)) {
                 polygon = new PolygonPrimitive(positions);
             }else{
                 positions.pop();
-                // cartesian.y += (1 + Math.random());
                 positions.push(cartesian);
             }
-            // tooltip.innerHTML='<p>'+distance+'米</p>';
         }
     },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     
     handler.setInputAction(function(movement){
-        // tooltip.style.display = "none";
-        // cartesian = viewer.scene.pickPosition(movement.position); 
       let ray = viewer.camera.getPickRay(movement.position);
       cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-        // cartesian = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
         if(positions.length == 0) {
             positions.push(cartesian.clone());
         }
-        //positions.pop();
         positions.push(cartesian);
         //在三维场景中添加点
         var cartographic = Cesium.Cartographic.fromCartesian(positions[positions.length - 1]);
@@ -622,16 +569,6 @@ function measureAreaSpace(viewer, handler){
     handler.setInputAction(function(movement){
         handler.destroy();
         positions.pop();
-        //tempPoints.pop();
-        // viewer.entities.remove(floatingPoint);
-        // tooltip.style.display = "none";
-        //在三维场景中添加点
-        // var cartographic = Cesium.Cartographic.fromCartesian(positions[positions.length - 1]);
-        // var longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
-        // var latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
-        // var heightString = cartographic.height;
-        // tempPoints.push({ lon: longitudeString, lat: latitudeString ,hei:heightString});
- 
         var textArea = getArea(tempPoints) + "平方公里";
         viewer.entities.add({
             name : '多边形面积',
@@ -674,7 +611,6 @@ function measureAreaSpace(viewer, handler){
             var dis_temp1 = distance(positions[i], positions[j]);
             var dis_temp2 = distance(positions[j], positions[k]);
             res += dis_temp1 * dis_temp2 * Math.abs(Math.sin(totalAngle)) ;
-            console.log(res);
         }
         
         
@@ -711,9 +647,7 @@ function measureAreaSpace(viewer, handler){
                 name:'多边形',
                 polygon : {
                     hierarchy : [],
-                    // perPositionHeight : true,
           material : Cesium.Color.GREEN.withAlpha(0.5),
-          // heightReference:20000
                 }
             };
             
@@ -741,8 +675,6 @@ function measureAreaSpace(viewer, handler){
         var geodesic = new Cesium.EllipsoidGeodesic();
         geodesic.setEndPoints(point1cartographic, point2cartographic);
         var s = geodesic.surfaceDistance;
-        //console.log(Math.sqrt(Math.pow(distance, 2) + Math.pow(endheight, 2)));
-        //返回两点之间的距离
         s = Math.sqrt(Math.pow(s, 2) + Math.pow(point2cartographic.height - point1cartographic.height, 2)); 
         return s;
     }

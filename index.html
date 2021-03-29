@@ -7,6 +7,12 @@
   <title>油库管理</title>
   <script type="text/javascript" src="./scripts/Cesium/Cesium.js"></script>
   <link rel="stylesheet" href="./layui/css/layui.css">
+  
+  <script src="./scripts/JavaScrip/CreatePoint.js"></script>
+  <script src="./scripts/JavaScrip/CreatePolyline.js"></script>
+  <script src="./scripts/JavaScrip/CreatePolygon.js"></script>
+  <script src="./scripts/JavaScrip/draw.js"></script>
+
 </head>
 <body class="layui-layout-body">
 	
@@ -72,7 +78,7 @@
     <div class="layui-side-scroll">
       <ul class="layui-nav layui-nav-tree"  lay-filter="test">
 			<!-- 总功能模块展开 -->
-			<li class="layui-nav-item layui-nav-itemed">
+			<li class="layui-nav-item">
 				<a class="">功能</a>
 					<dl class="layui-nav-child">
 			<!-- 总功能模块展开 -->
@@ -83,11 +89,12 @@
 							<dd><a onclick="change(1)">线</a></dd>
 							<dd><a onclick="change(2)">面</a></dd>
 							<dd><a onclick="change(3)">取消</a></dd>
-							<dd><a onclick="deleteEntities()">清空</a></dd>
+							<dd><a onclick="deleteOneEntity()">删除</a></dd>
+							<dd><a onclick="deleteAllEntities()">清空</a></dd>
 						 </dl>
 					  </li>
 					  
-					  <li class="layui-nav-item layui-nav-itemed">
+					  <li class="layui-nav-item">
 						 <a>地下模式</a>
 						 <dl class="layui-nav-child">
 							
