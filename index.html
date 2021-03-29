@@ -1,79 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cesium App</title>
-	<script type="text/javascript" src="scripts/Sandcastle/Sandcastle-header.js"></script>
-    <script type="text/javascript" src="./scripts/Cesium/Cesium.js"></script>
-    <!-- <link rel="stylesheet" href="./scripts/Cesium/Widgets/widgets.css"> -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>油库管理</title>
+  <script type="text/javascript" src="./scripts/Cesium/Cesium.js"></script>
+  <link rel="stylesheet" href="./layui/css/layui.css">
 </head>
-
-<body
-	class="sandcastle-loading"
-    data-sandcastle-bucket="bucket-requirejs.html">
+<body class="layui-layout-body">
+	
 	<style>
 				@import url(./scripts/Cesium/Widgets/widgets.css);
 				        html,
 				        body,
-				    #cesiumContainer {
-				        width: 100%;
-				        height: 100%;
-				        margin: 0;
-				        padding: 0;
-				        overflow: hidden;
-				    }
-				    .canvas {
-						position: absolute;
-				        left: 10px;
-				        top: 10px;
-				        display:none;
-				    }
-				    #canvas-a {
-				        top: 10px;
-				    }
-				    #canvas-b {
-				        top: 120px;
-				    }
-						
-					#getposition {
-						    position: absolute;
-						    top: 0;
-						    left: 0;
-						    width: 200px;
-						    height: 180px;
-						    background: rgba(42, 42, 42, 0.8);
-						}
-						
-					#toolbar {
-						     background: rgba(255, 255, 255, 1.0);
-							 margin-top: 15px;
-							 margin-left: 10px;
-							 padding: 17px;
-						     border-radius: 8px
-						}
-						
-					#toolbar input {
-						       vertical-align: middle;
-						       padding-top: 10px;
-						       padding-bottom: 2px
-						}
+				
+				#cesiumContainer {
+					width: 100%;
+					height: 100%;
+					margin: 0;
+					padding: 0;
+					overflow: hidden;
+				}
+				
+				/* 地下模式开启关闭按钮 */
+				.buttonOn{
+					position: absolute;
+					left:68px;
+					top:11px;
+				}
+				
+				.swich .box{width:30px;height:17px;background:#ccc;border-radius:15px;transition: all .5s ease;}
+				.swich input{display:none;}
+				.swich .box span{display:inline-block;height:15px;width:15px;border-radius:40px;background:#ffffff;transform:translate(0px,-6px);transition: all .5s ease;}
+				.swich-on .box{background:#245890;transition: all .5s ease;}
+				.swich-on .box span{transform:translate(20px,-6px);transition: all .5s ease;}
+				
 		    </style>
-    <div id="cesiumContainer" class="fullsize"></div>
 	
-	<div id="toolbar"></div>	
-	<div id="getposition">
-	         <input id=toolbar type="button" value="点" onclick="change(0)">
-	         <input id=toolbar type="button" value="线" onclick="change(1)">
-	         <input id=toolbar type="button" value="面" onclick="change(2)">	         
-	         <br />
-	         <input style="margin-left: 20px;" type="button" value="可视" onclick="changeModelVisible()">
-				<input style="margin-top:3px; margin-left: 10px;" type="button" value="删除" onclick="deleteEntities()">
-				<input style="margin-left: 10px;" type="button" value="取消" onclick="change(3)">
-				<input style="margin-top:10px; margin-left: 30px;" type="range" id="myRange" onclick="changeAlpha()">
-				<button style="margin-top: 10px; margin-left: 60px;" onclick="changeMode()">地下模式</button>
-	</div>
-		 <script src="./scripts/JavaScrip/getposition.js"></script>
+	
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">油库管理系统</div>
+    <ul class="layui-nav layui-layout-left">
+      <li class="layui-nav-item"><a href="">功能一</a></li>
+      <li class="layui-nav-item"><a href="">功能二</a></li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">其它系统</a>
+        <dl class="layui-nav-child">
+          <dd><a href="">功能一</a></dd>
+          <dd><a href="">功能二</a></dd>
+        </dl>
+      </li>
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <img src="./layui/images/logo.jpg" class="layui-nav-img">
+          管理员
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a href="">基本资料</a></dd>
+          <dd><a href="">安全设置</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item"><a href="">退出</a></li>
+    </ul>
+  </div>
+  
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+			<!-- 总功能模块展开 -->
+			<li class="layui-nav-item layui-nav-itemed">
+				<a class="">功能</a>
+					<dl class="layui-nav-child">
+			<!-- 总功能模块展开 -->
+					  <li class="layui-nav-item">
+						 <a class="">绘制图像</a>
+						 <dl class="layui-nav-child">
+							<dd><a onclick="change(0)">点</a></dd>
+							<dd><a onclick="change(1)">线</a></dd>
+							<dd><a onclick="change(2)">面</a></dd>
+							<dd><a onclick="change(3)">取消</a></dd>
+							<dd><a onclick="deleteEntities()">清空</a></dd>
+						 </dl>
+					  </li>
+					  
+					  <li class="layui-nav-item layui-nav-itemed">
+						 <a>地下模式</a>
+						 <dl class="layui-nav-child">
+							
+							<dd>
+								<a>开关</a>
+								<div class="swich buttonOn">
+									<input type="checkbox">
+										<div class="box">
+										<span></span>
+									</div>
+								</div>
+							</dd>
+							
+							<dd>
+								<a >透明度调整</a>
+							</dd>
+							
+							<dd>
+								<input id="myRange" type="range" style="margin-left: 20px;" value="100" onclick="changeAlpha()">
+							</dd>
+							
+						 </dl>
+					  </li>
+					  
+					  <li class="layui-nav-item">
+						  <a href="javascript:;">测量</a>
+							 <dl class="layui-nav-child">
+								<dd><a onclick = "calculateLineLength()">距离测量</a></dd>
+								<dd><a onclick = "calculateAreaSpace()">面积测量</a></dd>
+							 </dl>
+						</li>
+						
+						<li class="layui-nav-item">
+							<a onclick="changeModelVisible()">模型可视</a>
+						</li>
+		<!-- 总功能模块展开 -->		
+			</dl>
+		 </li>
+		<!-- 总功能模块展开 -->
+      </ul>
+    </div>
+  </div>
+  
+  <div class="layui-body">
+	 <div id="cesiumContainer" class="fullsize"></div>
+	 <script src="./scripts/JavaScrip/getposition.js">
+	 </script>
+  </div>
+   <div class="layui-footer">
+     © 北京微视威信息科技有限公司   津ICP备15005893号
+    </div>
+</div>
+
+<script src="./layui/layui.js"></script>
+<script>
+//JavaScript代码区域
+layui.use('element', function(){
+  var element = layui.element;
+});
+
+(function(select){
+        var box = document.querySelector(select)
+        var checkbox = box.querySelector("input");
+        box.onclick = function(){
+            this.classList.toggle("swich-on");
+            if(checkbox.checked){
+					 changeMode();
+                checkbox.checked = "true";
+            }else{
+                changeMode();
+                checkbox.checked = "false";
+            }
+        }
+    })(".swich");
+</script>
 </body>
 </html>
