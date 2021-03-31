@@ -177,110 +177,22 @@ var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-var activeShapePoints = [];
-var activeShape;
-var floatingPoint;
 var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-		
-function createPoint(worldPosition) {
-	var point = viewer.entities.add({
-		position: worldPosition,
-		point: {
-			color: Cesium.Color.WHITE,
-			pixelSize: 5,
-			outlineColor:Cesium.Color.BLACK,
-		   outlineWidth:2,
-			disableDepthTestDistance:5000000
-			}
-		});
-	return point;
-}
-
-function createPoints(worldPosition) {
-	var point = viewer.entities.add({
-		position: worldPosition,
-		point: {
-			color: Cesium.Color.RED,
-			pixelSize: 2,
-			disableDepthTestDistance:5000000
-			}
-		});
-	return point;
-}
-	  
-var drawingMode='';
-function drawShape(positionData){
-	var shape;
-	if(drawingMode=='line'){
-		shape=viewer.entities.add({
-			polyline:{
-				positions:positionData,
-				clampToGround:true,
-				material: new Cesium.ColorMaterialProperty(Cesium.Color.RED),
-				width:5
-			}
-		});
-	}else if(drawingMode=="polygon"){
-		shape=viewer.entities.add({
-			polygon:{
-				hierarchy:positionData,
-				 material: new Cesium.ColorMaterialProperty(Cesium.Color.WHITE.withAlpha(0.8))
-			}
-		});
-	}
-	return shape;
-}
- 
-// Redraw the shape so it's not dynamic and remove the dynamic shape.
-function terminateShape() {
-	//activeShapePoints.pop(); //去除最后一个动态点
-	if (activeShapePoints.length) {
-		 drawShape(activeShapePoints); //绘制最终图
-	}
-	viewer.entities.remove(floatingPoint); //去除动态点图形（当前鼠标点）
-	viewer.entities.remove(activeShape); //去除动态图形
-	floatingPoint = undefined;
-	activeShape = undefined;
-	activeShapePoints = [];
-}
-
-handler.setInputAction(function (event) {
-	terminateShape();
-}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		
-var boundingSphere = null; 
-
-function zoomToTileset() {
-    boundingSphere = tileset.boundingSphere;
-    viewer.camera.viewBoundingSphere(boundingSphere, new Cesium.HeadingPitchRange(0, -2.0, 0));
-    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-	 changeHeight(0);
-}
-
 //交互绘制点、线、面
 function change(type) {
     switch (type) {
         case 0:
-		// handler.setInputAction(function (movement) {
-		//     var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-		// 	 if(Cesium.defined(position))
-		// 	 {
-		// 		 createPoint(position);
-		// 	 }
-		// }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-		
-				draw.create(1);
-            break;
+			draw.create(1);
+         break;
         case 1:
 			draw.create(2);
          break;
         case 2:
-		  draw.create(3);
-        break;
+		   draw.create(3);
+         break;
         case 3:
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
-        break;
+         handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
+         break;
     }
 }
 
@@ -573,13 +485,13 @@ function measureAreaSpace(viewer, handler){
         viewer.entities.add({
             name : '多边形面积',
             position : positions[positions.length - 1],
-            // point : {
-            //  pixelSize : 5,
-            //  color : Cesium.Color.RED,
-            //  outlineColor : Cesium.Color.WHITE,
-            //  outlineWidth : 2,
-            //  heightReference:Cesium.HeightReference.CLAMP_TO_GROUND 
-            // },
+            point : {
+             pixelSize : 5,
+             color : Cesium.Color.RED,
+             outlineColor : Cesium.Color.WHITE,
+             outlineWidth : 2,
+             heightReference:Cesium.HeightReference.CLAMP_TO_GROUND 
+            },
             label : {
                 text : textArea,
                 font : '18px sans-serif',
@@ -598,16 +510,12 @@ function measureAreaSpace(viewer, handler){
     
     //计算多边形面积
     function getArea(points) {
-        
         var res = 0;
         //拆分三角曲面
- 
         for (var i = 0; i < points.length - 2; i++) {
             var j = (i + 1) % points.length;
             var k = (i + 2) % points.length;
-            var totalAngle = Angle(points[i], points[j], points[k]);
- 
-            
+            var totalAngle = Angle(points[i], points[j], points[k]);           
             var dis_temp1 = distance(positions[i], positions[j]);
             var dis_temp2 = distance(positions[j], positions[k]);
             res += dis_temp1 * dis_temp2 * Math.abs(Math.sin(totalAngle)) ;
@@ -680,4 +588,3 @@ function measureAreaSpace(viewer, handler){
     }
 }
 /***************************************计算区域面积结束********************************************************************/
-
