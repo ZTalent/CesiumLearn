@@ -2,7 +2,6 @@ class measureHeight {
 	constructor(arg) {
 		//设置唯一id 备用
 		this.objId = Number((new Date()).getTime() + "" + Number(Math.random() * 1000).toFixed(0));
-		//this.objId = Number(Math.random());
 		this.viewer = arg.viewer;
 		this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
 		this._heightArr = [];
@@ -21,8 +20,14 @@ class measureHeight {
 		var poly = null;
 		var cartesian = null;
 		var floatingPoint;
+		
+		var woc=-1;
+		var www=0;
+		var arr = [0,0];
 		var loc=0;
+
 		var height = 0;
+		var radius = 0;
 		var heightArr = [];
 		var $this = this;
 
@@ -36,7 +41,9 @@ class measureHeight {
 						positions.pop();
 						positions.push(cartesian);
 				  }
-				  height = getHeight();
+				  getHeight();
+				  radius = arr[0];
+				  height = arr[1];
 			 }
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -65,7 +72,7 @@ class measureHeight {
 						}
 					});
 					heightArr.push(floatingPoint);
-				}			
+				}
 			}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 		handler.setInputAction(function(movement){
@@ -99,19 +106,28 @@ class measureHeight {
 		 function getHeight(){
 			 var h = window.innerHeight;
 			 document.onmousemove = function(e){
-					loc =e.pageY;
+				 if(woc==-1)
+				 {
+					 woc = e.pageX;
+				 }
+					www = e.pageX;
+					loc = e.pageY;
 			 }
-			 return (h-loc)/2;
+			 console.log("woc:" + woc);
+			 console.log("www:" + www);
+			 console.log("loc:" + loc);
+			 arr[0] = Math.abs(woc - www);
+			 arr[1] = (h-loc)/2.5;
+			 
+			 //return (h-loc)/2;
+			 return arr;
 		 }
-
+		 
 		var HeightLinePrimitive = (function () {
 			 function _(positions) {
 				 var cartographic = Cesium.Cartographic.fromCartesian(positions[0]);
 				 var lon = Cesium.Math.toDegrees(cartographic.longitude);
 				 var lat = Cesium.Math.toDegrees(cartographic.latitude);
-				 var test_position=[];
-				 test_position.push(Cesium.Cartesian3.fromDegrees(lon, lat, 0));
-				 test_position.push(Cesium.Cartesian3.fromDegrees(lon, lat, getHeight()));
 				 this.options = {
 						name:'高度',
 						id: $this.objId,
@@ -160,8 +176,10 @@ class measureHeight {
 					/**根据经纬度计算出距离**/
 					var geodesic = new Cesium.EllipsoidGeodesic();
 					geodesic.setEndPoints(point1cartographic, point2cartographic);
-					var s = geodesic.surfaceDistance;
-					return s/5;
+					//var s = geodesic.surfaceDistance;
+					//return s/5;
+					var radius_temp = radius;
+					return radius_temp/2;
 				};
 				
 				var _height = function(){

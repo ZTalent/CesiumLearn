@@ -42,7 +42,6 @@ class DrawPolygon {
 				}
 			}
 			$this._positions.pop();
-			$this._positions.push(cartesian);
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		this.handler.setInputAction(function (evt) {
 			if (!$this._polygon) return;

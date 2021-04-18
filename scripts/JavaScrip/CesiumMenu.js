@@ -1,22 +1,28 @@
 // Get your own Bing Maps API key at https://www.bingmapsportal.com, prior to publishing your Cesium application:
 // Cesium.BingMapsApi.defaultKey = 'put your API key here';
 // Construct the default list of terrain sources.
+  
  Cesium.Ion.defaultAccessToken='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxNzIyZDQ4MS0wMWFjLTQ0NmEtYjNjZC1mNjcwMjA5NzEzYmYiLCJpZCI6NDkyMTYsImlhdCI6MTYxNzM0NTEzNH0.RCV9Inpx2XCLua5qHHndZkGcn2RUrczpfZSaVjvOy8s';
 
-var pkutex = new Cesium.WebMapTileServiceImageryProvider({
-	url:
-	  "http://162.105.86.226/mapcache/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SATE&TILEMATRIXSET=WebMercator&TILEMATRIX={TileMatrix}&TILECOL={TileCol}&TILEROW={TileRow}&STYLE=default&FORMAT=image%2Fpng",
-	layer: "SATE",
-	format: "image/png",
-	maximumLevel: 18,
- });
- 
- var pkudem = new Cesium.CesiumTerrainProvider({
- 	url:'http://162.105.86.226/DEM/'
- });
+/**************************************************服务器获取tex、dem**********************************************/
 
-var terrainModels = Cesium.createDefaultTerrainProviderViewModels();
-//Cesium基础窗口
+// var pkutex = new Cesium.WebMapTileServiceImageryProvider({
+// 	url:
+// 	  "http://162.105.86.226/mapcache/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=SATE&TILEMATRIXSET=WebMercator&TILEMATRIX={TileMatrix}&TILECOL={TileCol}&TILEROW={TileRow}&STYLE=default&FORMAT=image%2Fpng",
+// 	layer: "SATE",
+// 	format: "image/png",
+// 	maximumLevel: 18,
+//  });
+ 
+//  var pkudem = new Cesium.CesiumTerrainProvider({
+//  	url:'http://162.105.86.226/DEM/'
+//  });
+/**************************************************服务器获取tex、dem代码结束**********************************************/
+
+
+
+/**************************************************Cesium基础窗口**********************************************/
+//var terrainModels = Cesium.createDefaultTerrainProviderViewModels();
 var viewer = new Cesium.Viewer('cesiumContainer',{
 		//imageryProvider:pkutex,
 		animation:false,//是否显示动画控件
@@ -40,39 +46,88 @@ var viewer = new Cesium.Viewer('cesiumContainer',{
 		//),
 });
 
-viewer.terrainProvider = pkudem;
-viewer.imageryLayers.addImageryProvider(pkutex);
+// viewer.terrainProvider = pkudem;
+//viewer.imageryLayers.addImageryProvider(pkutex);
 viewer._cesiumWidget._creditContainer.style.display = "none";
 // viewer.scene.debugShowFramesPerSecond = false;
 
-
-//交互绘制点、线、面
-var draw = new DrawPolt({
-		viewer:viewer
-	});
-
-//直线、面积、高度测量
-var measure = new MeasurePolt({
-		viewer:viewer
-	});	
-
-var globe = viewer.scene.globe;
+/**************************************************Cesium基础窗口代码结束**********************************************/
 
 
-// No depth testing against the terrain to avoid z-fighting
-//地下模式设置
+var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+
+/**********************************************交互绘制点、线、面*****************************************************/
+	var draw = new DrawPolt({
+			viewer:viewer
+		});
+	
+	function drawGeometry(type) {
+	    switch (type) {
+	        case 0:
+				draw.create(1);
+				//measure.create(1);
+	         break;
+	        case 1:
+				draw.create(2);
+	         break;
+	        case 2:
+			   draw.create(3);
+	         break;
+	        case 3:
+	         draw.clearOne();
+	         break;
+			  case 4:
+				draw.clearAll();
+				break;
+	    }
+	}
+/**********************************************交互绘制点、线、面代码结束**********************************************/
+
+
+
+/**********************************************交互距离测量**********************************************************/
+	var measure = new MeasurePolt({
+			viewer:viewer
+		});	
+
+	function measureSpace(type) {
+			switch(type) {
+				case(0):
+					measure.create(1);
+					break;
+				case(1):
+					measure.create(2);
+					break;
+				case(2):
+					measure.create(3);
+					break;
+				case(3):
+					measure.clearOne();
+					break;
+				case(4):
+					measure.clearAll();
+					break;
+			}
+	}
+
+
+/**********************************************交互距离测量代码结束**********************************************************/
+
+
+
+/**********************************************地下模式设置**********************************************************/
 var isunderground=false;
 viewer.scene.globe.depthTestAgainstTerrain = true;
 function changeMode(){
 	if(!isunderground)
 	{
 		isunderground=true;
-		globe.translucency.enabled = true;
+		viewer.scene.globe.translucency.enabled = true;
 		viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
 		changeAlpha();
 	}else{
 		isunderground=false;
-		globe.translucency.enabled = false;
+		viewer.scene.globe.translucency.enabled = false;
 		viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 	}
 }
@@ -80,39 +135,20 @@ function changeMode(){
 function changeAlpha(){
 	if(isunderground)
 	{
-		globe.translucency.enabled = true;
+		viewer.scene.globe.translucency.enabled = true;
 		var alpha=document.getElementById("myRange").value;
-		globe.translucency.frontFaceAlphaByDistance = new Cesium.NearFarScalar(1.5e2, alpha/100, 8.0e6, 1.0);
+		viewer.scene.globe.translucency.frontFaceAlphaByDistance = new Cesium.NearFarScalar(1.5e2, alpha/100, 8.0e6, 1.0);
 	}
 }
+/******************************************地下模式代码结束**********************************************************/
+
 
 // Bounding sphere
 var boundingSphere = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(116.310, 39.9800, 100.500143), 143.6271004);
 
-// Set custom initial position
-// viewer.camera.flyToBoundingSphere(boundingSphere, { duration: 0 });
-
 viewer.camera.setView({
-    destination: new Cesium.Cartesian3.fromDegrees(116.310, 39.9800, 500)
+    destination: new Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 500)
   });
-var x = 360.0;
-var y = -890.0;
-var z = -870.0;
-var m = Cesium.Matrix4.fromArray([
-    1.0, 0.0, 0.0, 0.0,
-    0.0, 1.0, 0.0, 0.0,
-    0.0, 0.0, 1.0, 0.0,
-    x, y, z, 1.0
-]);
-
-var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-	id:'test',
-    url: '././scene/testm3DTiles.json',
-    maximumScreenSpaceError: 2,
-    maximumNumberOfLoadedTiles: 1000,
-    modelMatrix: m 
-}));
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // var params = {
@@ -205,149 +241,251 @@ var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-//交互绘制点、线、面
-function drawGeometry(type) {
-    switch (type) {
-        case 0:
-			draw.create(1);
-			//measure.create(1);
-         break;
-        case 1:
-			draw.create(2);
-         break;
-        case 2:
-		   draw.create(3);
-         break;
-        case 3:
-         draw.clearOne();
-         break;
-		  case 4:
-			draw.clearAll();
-			break;
-    }
-}
-//线段、面积、高度测量
-function measureSpace(type) {
-		switch(type) {
-			case(0):
-				measure.create(1);
-				break;
-			case(1):
-				measure.create(2);
-				break;
-			case(2):
-				measure.create(3);
-				break;
-			case(3):
-				measure.clearOne();
-				break;
-			case(4):
-				measure.clearAll();
-				break;
-		}
-}
-
-
-
 //模型添加
-var modelgltf_entity = viewer.entities.add(new Cesium.Entity());
-function addModel(Id,url){
+
+// var modelgltf_entity = viewer.entities.add(new Cesium.Entity());
+// function addModel(Id,url){
+// 	   var entity=viewer.entities.add({
+// 		parent:modelgltf_entity,
+// 		id:Id,
+// 		name:'教学楼',
+// 		position: Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 0),
+// 		model: {
+// 			// 引入模型
+// 			//uri: url,
+// 			uri: './model/source/building3/building3.gltf',
+// 			// 模型的近似最小像素大小，而不考虑缩放。这可以用来确保即使观看者缩小也可以看到模型。如果为0.0，则不强制使用最小大小
+// 			minimumPixelSize: 0,
+// 			// 模型的颜色（与模型的渲染颜色混合的属性）
+// 			color: Cesium.Color.WHITE.withAlpha(1),
+// 			// 模型的最大比例大小
+// 			maximumScale: 1280,
+// 			// 设置模型轮廓（边框）颜色
+// 			silhouetteColor: Cesium.Color.BLACK,
+// 			// 设置模型轮廓（边框）大小
+// 			silhouetteSize: 0,
+// 			// 是否执行模型动画
+// 			runAnimations: true,
+// 			// 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
+// 			scale: 1.0,
+// 			// 是否显示
+// 			show: true
+// 		},
+// });
+// entity.description='\
+// <p>\ 这是一个用来进行测试导入模型的gltf格式的模型</p>';
+// }
+
+
+
+
+addModel(123,'./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 0),'教学楼','\
+<p>\ 这是一个用来进行测试导入模型的gltf格式的模型</p>');
+addModel(456,'./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.305, 39.985, 0.0),'路畅楼','\
+<p>\ 这是一个用来进行测试的模型</p>');
+
+function addModel(Id, model_url, model_position, model_name, model_description){
 	var entity=viewer.entities.add({
-		parent:modelgltf_entity,
-		id:Id,
-		name:'教学楼',
-		position: Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 50),
-		model: {
-			// 引入模型
-			uri: url,
-			// 模型的近似最小像素大小，而不考虑缩放。这可以用来确保即使观看者缩小也可以看到模型。如果为0.0，则不强制使用最小大小
-			minimumPixelSize: 0,
-			// 模型的颜色（与模型的渲染颜色混合的属性）
-			color: Cesium.Color.WHITE.withAlpha(1),
-			// 模型的最大比例大小
-			maximumScale: 1,
-			// 设置模型轮廓（边框）颜色
-			silhouetteColor: Cesium.Color.BLACK,
-			// 设置模型轮廓（边框）大小
-			silhouetteSize: 0,
-			// 是否执行模型动画
-			runAnimations: true,
-			// 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
-			scale: 1.0,
-			// 是否显示
-		},
-});
-	
-entity.description='\
-<p>\ 这是一个用来进行测试导入模型的gltf格式的模型</p>';
+			id:Id,
+			name:model_name,
+			position:model_position,
+			model: {
+				// 引入模型
+				uri: model_url,
+				// 模型的近似最小像素大小，而不考虑缩放。这可以用来确保即使观看者缩小也可以看到模型。如果为0.0，则不强制使用最小大小
+				minimumPixelSize: 0,
+				// 模型的颜色（与模型的渲染颜色混合的属性）
+				color: Cesium.Color.WHITE.withAlpha(1),
+				// 模型的最大比例大小
+				maximumScale: 1280,
+				// 设置模型轮廓（边框）颜色
+				silhouetteColor: Cesium.Color.BLACK,
+				// 设置模型轮廓（边框）大小
+				silhouetteSize: 0,
+				// 是否执行模型动画
+				runAnimations: true,
+				// 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
+				scale: 1.0,
+				// 是否显示
+				show: true
+			},
+	});
+	entity.description = model_description;
 }
 
 //模型和3DTile的可视性
-var model_loaded=true;
-addModel(123,'http://162.105.86.226:8009/static/upload/files/building3.gltf');
-function changeModelVisible(){
-	tileset.show = !tileset.show;
-	if(!model_loaded)
-	{
-		model_loaded = true;
-		addModel(123,'http://162.105.86.226:8009/static/upload/files/building3.gltf');
-		modelgltf_entity.show=true;
-	}else{
-		modelgltf_entity.show=!modelgltf_entity.show;
-	}
+// var model_loaded=true;
+// addModel(123,'http://162.105.86.226:8009/static/upload/files/building3.gltf');
+// function changeModelVisible(){
+// 	tileset.show = !tileset.show;
+// 	if(!model_loaded)
+// 	{
+// 		model_loaded = true;
+// 		addModel(123,'http://162.105.86.226:8009/static/upload/files/building3.gltf');
+// 		modelgltf_entity.show=true;
+// 	}else{
+// 		modelgltf_entity.show=!modelgltf_entity.show;
+// 	}
+// }
+
+// var blueBox=viewer.entities.add({
+// 	id:'blue',
+// 	name:'蓝色盒子',
+// 	position: Cesium.Cartesian3.fromDegrees(116.305, 39.9894, 30.600143),
+// 	box:{
+// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
+// 		material : Cesium.Color.BLUE.withAlpha(1.0),
+// 		outline : true,
+// 		outlineColor : Cesium.Color.BLACK
+// 	}
+// });
+
+// blueBox.description='\
+// <p>\ 这是一个部分在地底下，部分在地面上的蓝色不透明的盒子</p>';
+
+
+// var redBox=viewer.entities.add({
+// 	id:'red',
+// 	name:'红色盒子',
+// 	position: Cesium.Cartesian3.fromDegrees(116.300, 39.9894, 30.600143),
+// 	box:{
+// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
+// 		material : Cesium.Color.RED.withAlpha(1.0),
+// 		outline : true,
+// 		outlineColor : Cesium.Color.BLACK
+// 	}
+// });
+
+// redBox.description='\
+// <p>\ 这是一个部分在地底下，部分在地面上的红色不透明的盒子</p>';
+
+// var yellowBox=viewer.entities.add({
+// 	id:'yellow',
+// 	name:'黄色盒子',
+// 	position: Cesium.Cartesian3.fromDegrees(116.295, 39.9894,30.600143),
+// 	box:{
+// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
+// 		material : Cesium.Color.YELLOW.withAlpha(1.0),
+// 		outline : true,
+// 		outlineColor : Cesium.Color.BLACK
+// 	}
+// });
+// yellowBox.description='\
+// <p>\ 这是一个部分在地底下，部分在地面上的黄色不透明的盒子</p>';
+
+
+/*********************************************模型编辑************************************************/
+ function editModel(type) {
+	 var model_handler = null;
+	 var m_model= null;
+	  if (!model_handler) {
+			model_handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+	  }
+	  
+	  var m_id;
+	  model_handler.setInputAction(function (evt) {
+		  var modelEditBar = document.getElementById("ModelEditBar");
+		  var pick;
+		  var model_id;
+			pick = viewer.scene.pick(evt.position);
+			if (Cesium.defined(pick) && pick.id) {
+				 m_model = viewer.entities.getById(pick.id.id);
+				 m_model.model.silhouetteColor = Cesium.Color.RED; //选中模型后高亮
+				 m_model.model.silhouetteSize = 3.0;
+				 //1.创建viewModel对象
+				 var editModel = {
+				 	scale: 1.0,
+				 	heading:   0.0,
+				 	pitch:  0.0,
+				 	roll: 0.0,
+				 	alpha: 1.0,
+				 	tranX: 0.0,
+				 	tranY: 0.0,
+				 	tranZ: 0.0
+				 };	
+				 //2.监测viewModel中的属性
+				 Cesium.knockout.track(editModel); 
+				 //3.激活属性,将viewModel对象与html控件绑定
+				 
+				 Cesium.knockout.applyBindings(editModel, modelEditBar);
+				 
+				 changeModel("scale");
+				 changeModel("heading");
+				 changeModel("pitch");
+				 changeModel("roll");
+				 changeModel("alpha");
+				 changeModel("tranX");
+				 changeModel("tranY");
+				 changeModel("tranZ");
+				 
+				 var heading = 0;
+				 var pitch = 0;
+				 var roll =0;
+				 
+				 var offsetx = 0;
+				 var offsety = 0;
+				 var offsetz = 0;
+				 
+				 var cartographic = Cesium.Cartographic.fromCartesian(m_model.position._value);
+				 var lon = Cesium.Math.toDegrees(cartographic.longitude);
+				 var lat = Cesium.Math.toDegrees(cartographic.latitude);
+				 var height = cartographic.height;
+					 
+				 function changeModel(name){
+				 	Cesium.knockout.getObservable(editModel, name).subscribe(function(value) {
+				 		//value值改变后会赋值给imagelayer的相应属性
+				 		var origin = m_model.position._value;
+				 		
+				 		if(name=="scale")
+				 		{
+				 			m_model.model.scale=value;
+				 		}
+						if(name=="heading")
+						{
+							heading = Cesium.Math.toRadians(value);
+						}
+				 		if(name=="pitch")
+				 		{
+				 			pitch = Cesium.Math.toRadians(value);
+				 		}
+				 		
+				 		if(name=="roll")
+				 		{
+				 			roll = Cesium.Math.toRadians(value);
+				 		}
+				 		if(name=="alpha")
+				 		{
+				 			m_model.model.color = Cesium.Color.WHITE.withAlpha(value);
+				 		}
+				 		if(name=="tranX")
+				 		{
+				 			offsetx = Number(value)/100;
+				 		}
+				 		if(name=="tranY")
+				 		{
+				 			offsety = Number(value)/100;
+				 		}
+				 		if(name=="tranZ")
+				 		{
+				 			offsetz = Number(value);
+				 		}
+				 		var hpr = new Cesium.HeadingPitchRoll(heading,pitch,roll);
+						console.log(hpr.heading,hpr.pitch,hpr.roll);
+				 		var orientation = Cesium.Transforms.headingPitchRollQuaternion(origin,hpr);
+				 		m_model.orientation = orientation;
+				 		m_model.position = new Cesium.Cartesian3.fromDegrees(lon + offsetx, lat + offsety, height + offsetz);
+				 	});
+				 }
+			}
+	  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	  
+	  
+	  model_handler.setInputAction(function (evt) {
+		  m_model.model.silhouetteColor = Cesium.Color.RED; //选中模型后高亮
+		  m_model.model.silhouetteSize = 0.0;
+		  var bindID = document.getElementById("ModelEditBar");
+		  Cesium.knockout.cleanNode(bindID);
+		},Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+		
 }
-
-//删除所有Entity保留模型
-function deleteOneEntity() {
-	draw.clearOne();
-}
-
-function deleteAllEntities(){
-	draw.clearAll();
-}
-
-var blueBox=viewer.entities.add({
-	id:'blue',
-	name:'蓝色盒子',
-	position: Cesium.Cartesian3.fromDegrees(116.305, 39.9894, 30.600143),
-	box:{
-		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-		material : Cesium.Color.BLUE.withAlpha(1.0),
-		outline : true,
-		outlineColor : Cesium.Color.BLACK
-	}
-});
-
-blueBox.description='\
-<p>\ 这是一个部分在地底下，部分在地面上的蓝色不透明的盒子</p>';
-
-
-var redBox=viewer.entities.add({
-	id:'red',
-	name:'红色盒子',
-	position: Cesium.Cartesian3.fromDegrees(116.300, 39.9894, 30.600143),
-	box:{
-		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-		material : Cesium.Color.RED.withAlpha(1.0),
-		outline : true,
-		outlineColor : Cesium.Color.BLACK
-	}
-});
-
-redBox.description='\
-<p>\ 这是一个部分在地底下，部分在地面上的红色不透明的盒子</p>';
-
-var yellowBox=viewer.entities.add({
-	id:'yellow',
-	name:'黄色盒子',
-	position: Cesium.Cartesian3.fromDegrees(116.295, 39.9894,30.600143),
-	box:{
-		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-		material : Cesium.Color.YELLOW.withAlpha(1.0),
-		outline : true,
-		outlineColor : Cesium.Color.BLACK
-	}
-});
-yellowBox.description='\
-<p>\ 这是一个部分在地底下，部分在地面上的黄色不透明的盒子</p>';
+/*********************************************模型编辑结束************************************************/

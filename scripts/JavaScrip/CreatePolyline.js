@@ -46,7 +46,6 @@ class DrawPolyline {
 			var cartesian = $this.getCatesian3FromPX(evt.position);
 			$this.handler.destroy();
 			$this._positions.pop();
-			$this._positions.push(cartesian);
 		}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 	}
 	createPolyline(obj) {
