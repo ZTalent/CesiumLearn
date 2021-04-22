@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dinosaur fbx
+* source:	https://sketchfab.com/3d-models/dinosaur-fbx-5d618571be5e4a97ba3f31950530a06e
+* author:	jeilocreativedesignworld (https://sketchfab.com/jeilocreativedesignworld)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dinosaur fbx" (https://sketchfab.com/3d-models/dinosaur-fbx-5d618571be5e4a97ba3f31950530a06e) by jeilocreativedesignworld (https://sketchfab.com/jeilocreativedesignworld) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

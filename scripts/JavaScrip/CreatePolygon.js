@@ -42,13 +42,13 @@ class DrawPolygon {
 				}
 			}
 			$this._positions.pop();
+			$this._positions.push(cartesian);
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		this.handler.setInputAction(function (evt) {
 			if (!$this._polygon) return;
 			var cartesian = $this.getCatesian3FromPX(evt.position);
 			$this.handler.destroy();
 			$this._positions.pop();
-			$this._positions.push(cartesian);
 		}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 	}
 	createPolygon(obj) {
@@ -61,11 +61,7 @@ class DrawPolygon {
 				clampToGround: true,
 				show: true,
 				fill: true,
-				material: Cesium.Color.WHITE.withAlpha(0.5),
-				width: 3,
-				outlineColor: Cesium.Color.BLACK,
-				outlineWidth: 2,
-				outline: false
+				material: Cesium.Color.WHITE.withAlpha(0.5),				
 			}
 		});
 	}
@@ -78,7 +74,7 @@ class DrawPolygon {
 				}, false),
 				clampToGround: true,
 				material: Cesium.Color.WHITE,
-				width: 3
+				width: 2
 			}
 		});
 	}

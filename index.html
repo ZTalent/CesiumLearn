@@ -45,9 +45,20 @@
 					.swich .box span{display:inline-block;height:15px;width:15px;border-radius:40px;background:#ffffff;transform:translate(0px,-6px);transition: all .5s ease;}
 					.swich-on .box{background:#245890;transition: all .5s ease;}
 					.swich-on .box span{transform:translate(20px,-6px);transition: all .5s ease;}
-								
+					
+					
+					.model_swich .box{width:30px;height:17px;background:#ccc;border-radius:15px;transition: all .5s ease;}
+					.model_swich input{display:none;}
+					.model_swich .box span{display:inline-block;height:15px;width:15px;border-radius:40px;background:#ffffff;transform:translate(0px,-18.5px);transition: all .5s ease;}
+					.model_swich-on .box{background:#245890;transition: all .5s ease;}
+					.model_swich-on .box span{transform:translate(20px,-18.5px);transition: all .5s ease;}
+					
+					
 					.modelEditBarRange{width: 100px;margin-left: 6px;margin-top: 10px;}
 					.modelEditBarInput{width: 32px;margin-left:5px;}
+					.floatingWindow{
+						position: absolute;
+					}
 		</style>
 		
 
@@ -65,6 +76,7 @@
 						<dd><a onclick="drawGeometry(4)">清空</a></dd>
 					</dl>
 			</li>
+			
 			<li class="layui-nav-item">
 				<a>地下模式</a>
 				<dl class="layui-nav-child">
@@ -91,33 +103,57 @@
 			  <dl class="layui-nav-child">
 				 <dd><a onclick = "measureSpace(0)">距离测量</a></dd>
 				 <dd><a onclick = "measureSpace(1)">面积测量</a></dd>
+				 <dd><a onclick = "measureCircle()">圆面积测量</a></dd>
 				 <dd><a onclick = "measureSpace(2)">高度测量</a></dd>
 				 <dd><a onclick = "measureSpace(3)">删除</a></dd>
 				 <dd><a onclick = "measureSpace(4)">清空</a></dd>
 			  </dl>
 			</li>
-		 </ul>
+			
+			
+			<li class="layui-nav-item">
+			  <a>定位</a>
+			  <dl class="layui-nav-child">
+				 <dd><a>经度</a><input id = "myLon" type="input" value ="0" style = "width:70px"></dd>
+				 <dd><a>纬度</a><input id = "myLat" type="input" value ="0" style = "width:70px"></dd>
+				 <dd><a onclick="fly2Mylonlat()">定位</a></dd>
+			  </dl>
+			</li>
+			
+			<li class="layui-nav-item">
+				<a>模型编辑模式</a>
+				<div  class="model_swich buttonOn" style="margin-top:12px;margin-left:60px;">
+					<input type="checkbox" >
+						<div class="box">
+						<span></span>
+					</div>
+				</div>
+		   </ul>
 		 		
 		 <ul class="layui-nav layui-layout-right">
-			<li class="layui-nav-item">
-			  <a href="javascript:;">
+<!-- 			<li class="layui-nav-item">
+			  <a>
 				 <img src="./layui/images/logo.jpg" class="layui-nav-img">
 				 管理员
 			  </a>
-			  <!-- <dl class="layui-nav-child">
+			  <dl class="layui-nav-child">
 				 <dd><a>基本资料</a></dd>
 				 <dd><a>安全设置</a></dd>
-			  </dl> -->
+			  </dl>
+			</li> -->
+			<li class="layui-nav-item">
+				<a onclick="saveToFile()">
+					<img src="./layui/images/screenshot.png" class="layui-nav-img">场景出图
+				</a>
 			</li>
-			<!-- <li class="layui-nav-item"><a>退出</a></li> -->
 		 </ul>
 	  </div>
 	  <!-- <div class="layui-side layui-bg-black"> -->
-	<div class="layui-side" style="width:220px;">
+	<div class="layui-side" style="width:220px;margin-top: -1000px;" id="ModelEdit">
 		 <div class="layui-side-scroll">
 			<ul class="layui-nav layui-nav-tree"  lay-filter="test" style="width:220px;">
 				<li class="layui-nav-item">
-					<a onclick="editModel()">模型编辑</a>
+					<a>模型编辑</a>
 						<dl class="layui-nav-child ">
 							<div id = "ModelEditBar">
 							<table>
@@ -194,22 +230,28 @@
 								<tr>
 									<td>&nbsp;&nbsp;Z轴平移</td>
 									<td>
-										<input type="range" min="-200" max="200" step="1" value ="0" class="modelEditBarRange" data-bind="value: tranZ, valueUpdate: 'input'" />
+										<input type="range" min="-300" max="300" step="1" value ="0" class="modelEditBarRange" data-bind="value: tranZ, valueUpdate: 'input'" />
 									</td>
 									<td>
-										<input type="input" min="-200" max="200" step="1" value ="0" class="modelEditBarInput" data-bind="value: tranZ" />
+										<input type="input" min="-300" max="300" step="1" value ="0" class="modelEditBarInput" data-bind="value: tranZ" />
 									</td>
 								</tr>
 							</table>
 							</div>
-							
-						 <!-- <li class="layui-nav-item">
-							 <a class="">缩放</a>
-							 	<dd>
-							 		<input id="myScale" type="range" style="margin-left: 20px;" value="50" onclick="getEntity(0)">
-							 	</dd>
-						  </li-->
 				</dl>
+				<li class="layui-nav-item">
+				    <a>模型添加</a>
+				    <dl class="layui-nav-child">
+				      <dd><a onclick="addExistingModel(0)"><img src="./layui/images/logo.jpg" class="layui-nav-img">油库模型一</a></dd>
+				      <dd><a onclick="addExistingModel(1)"><img src="./layui/images/logo2.png" class="layui-nav-img">油库模型二</a></dd>
+				      <dd><a onclick="addExistingModel(2)"><img src="./layui/images/logo3.png" class="layui-nav-img">油库模型三</a></dd>
+				    </dl>
+				  </li>
+				  
+			  <li class="layui-nav-item">
+					<dd><a onclick="clearOneModel()">删除</a></dd>
+			  </li>
+				  
 			 </li>
 			</ul>
 		 </div>
@@ -231,8 +273,7 @@
 				title: '操作提示',
 			  content: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;鼠标左键为选择操作,右键为取消该操作。<p>&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选择操作与取消操作一一对应。</p>',
 			  yes: function(index, layero){
-			    //do something
-			    layer.close(index); //如果设定了yes回调，需进行手工关闭
+			    layer.close(index); 
 			  }
 			});        
 			});              
@@ -255,7 +296,43 @@
 								 checkbox.checked = "false";
 							}
 					  }
-				 })(".swich");	
+				 })(".swich");
+					 
+			 (function(select){
+				  var box = document.querySelector(select)
+				  var checkbox = box.querySelector("input");
+				  box.onclick = function(){
+						this.classList.toggle("model_swich-on");
+						if(checkbox.checked){
+							 editModel();
+							 fun1();
+							 checkbox.checked = "true";
+						}else{
+							 editModel();
+							 fun1();
+							 checkbox.checked = "false";
+						}
+				  }
+			 })(".model_swich");
+
+			  var timer;
+			  function fun1() {
+				 clearInterval(timer);
+				var odiv = document.getElementById("ModelEdit");
+				 if (odiv.style.marginTop =="-1000px") {
+					timer = setInterval(function () {
+					  odiv = document.getElementById("ModelEdit");
+					  odiv.style.marginTop = 0+"px";
+					}, 10)
+				 }
+				 
+				 if (odiv.style.marginTop =="0px") {
+					timer = setInterval(function () {
+					  odiv = document.getElementById("ModelEdit");
+					  odiv.style.marginTop  = -1000+"px";
+					}, 10)
+				 }
+			  }	 
 		</script>
 	</body>
 </html>

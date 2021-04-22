@@ -113,11 +113,8 @@ class measureHeight {
 					www = e.pageX;
 					loc = e.pageY;
 			 }
-			 console.log("woc:" + woc);
-			 console.log("www:" + www);
-			 console.log("loc:" + loc);
 			 arr[0] = Math.abs(woc - www);
-			 arr[1] = (h-loc)/2.5;
+			 arr[1] = (h-loc)/10;
 			 
 			 //return (h-loc)/2;
 			 return arr;

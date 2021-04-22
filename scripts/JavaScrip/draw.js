@@ -39,7 +39,6 @@ class DrawPolt {
             });
             gon.startCreate();
             this._gonArr.push(gon);
-
         }
     }
     clearAll() {
