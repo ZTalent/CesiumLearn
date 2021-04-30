@@ -4,6 +4,7 @@ class MeasurePolt {
         this._lineArr = [];
         this._areaArr = [];
         this._heightArr = [];
+		  this._circleArr = [];
         this.handler = null;
     }
 	 
@@ -34,13 +35,19 @@ class MeasurePolt {
             });
             area.startCreate();
             this._areaArr.push(area);
-        } else { //测量高度
+        } else if (type == 3){ //测量高度
             var height = new measureHeight({
                 viewer: this.viewer
             });
             height.startCreate();
             this._heightArr.push(height);
-        }
+        }else if(type == 4){
+			  var circle = new measureCircle({
+				  viewer: this.viewer
+			  });
+			  circle.startCreate();
+			  this._circleArr.push(circle);
+		  }
 		}
 		
     clearAll() {
@@ -59,6 +66,11 @@ class MeasurePolt {
             height.destroy();
         }
         this._heightArr = [];
+		  for (var m = 0; m < this._circleArr.length; m++) {
+		      var circle = this._circleArr[m];
+		      circle.destroy();
+		  }
+		  this._circleArr = [];
     }
 	 
     clearOne() {
@@ -76,7 +88,7 @@ class MeasurePolt {
 					    var line = that._lineArr[i];
 						 if(line.objId==pick.id.id)
 						 {
-							 flag = true;
+							  flag = true;
 							  line.destroy();
 							  that.handler.destroy();
 							  that.handler = null;
@@ -111,7 +123,21 @@ class MeasurePolt {
 								 break;
 							 }
 						 }
-					 } 
+					 }
+					 
+				 if(!flag)
+				 {
+					for (var k = 0; k < that._circleArr.length; k++) {
+						 var circle = that._circleArr[k];
+						 if(circle.objId == pick.id.id)
+						 {
+							 circle.destroy();
+							 that.handler.destroy();
+							 that.handler = null;
+							 break;
+						 }
+					 }
+				  } 
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     }

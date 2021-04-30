@@ -7,6 +7,8 @@ class DrawPolyline {
 		this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
 		this._polyline = null;
 		this._positions = [];
+		this._points = [];
+		this._points_positions = [];
 	}
 
 	//获取线
@@ -27,6 +29,19 @@ class DrawPolyline {
 				$this._positions.push(cartesian.clone());
 			}
 			$this._positions.push(cartesian);
+			var point = $this.viewer.entities.add({
+			position: cartesian,
+			point: {
+				//使用cesium的peoperty
+				color: Cesium.Color.WHITE,
+				pixelSize: 3,
+				outlineColor:Cesium.Color.RED,
+				outlineWidth:1,
+				disableDepthTestDistance:5000000
+			}
+		});
+		$this._points.push(point);
+		$this._points_positions.push(cartesian);
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 		this.handler.setInputAction(function (evt) { //移动时绘制线
 			if ($this._positions.length < 1) return;
@@ -77,6 +92,12 @@ class DrawPolyline {
 			this._polyline = null;
 		}
 		this._positions = [];
+		
+		for(var i=0;i<this._points.length;i++)
+		{
+			this.viewer.entities.remove(this._points[i]);
+		}
+		this._points_positions = [];
 	}
 	getCatesian3FromPX(px) {
 		var cartesian;
@@ -84,5 +105,9 @@ class DrawPolyline {
 		if (!ray) return null;
 		cartesian = this.viewer.scene.globe.pick(ray, this.viewer.scene);
 		return cartesian;
+	}
+	
+	getPositions(){
+		return this._points_positions;
 	}
 }

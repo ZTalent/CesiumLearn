@@ -117,6 +117,9 @@ var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 				case(4):
 					measure.clearAll();
 					break;
+				case(5):
+					measure.create(4);
+					break;
 			}
 	}
 
@@ -157,7 +160,7 @@ function changeAlpha(){
 var boundingSphere = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(116.310, 39.9800, 100.500143), 143.6271004);
 
 viewer.camera.setView({
-    destination: new Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 500)
+    destination: new Cesium.Cartesian3.fromDegrees(115.307, 41.9895, 500)
   });
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -289,10 +292,10 @@ viewer.camera.setView({
 
 
 
-addModel('./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 0),'教学楼','\
-<p>\ 这是一个用来进行测试导入模型的gltf格式的模型</p>');
-addModel('./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.305, 39.985, 0.0),'教学二号楼','\
-<p>\ 这是一个用来进行测试的模型</p>');
+// addModel('./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 0),'教学楼','\
+// <p>\ 这是一个用来进行测试导入模型的gltf格式的模型</p>');
+// addModel('./model/source/building3/building3.gltf',Cesium.Cartesian3.fromDegrees(116.305, 39.985, 0.0),'教学二号楼','\
+// <p>\ 这是一个用来进行测试的模型</p>');
 
 
 // addModel(456,'./model/testmodel/obj/1.glb',Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 100),'教学楼','\
@@ -346,51 +349,6 @@ function addModel(model_url, model_position, model_name, model_description){
 // 		modelgltf_entity.show=!modelgltf_entity.show;
 // 	}
 // }
-
-// var blueBox=viewer.entities.add({
-// 	id:'blue',
-// 	name:'蓝色盒子',
-// 	position: Cesium.Cartesian3.fromDegrees(116.305, 39.9894, 30.600143),
-// 	box:{
-// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-// 		material : Cesium.Color.BLUE.withAlpha(1.0),
-// 		outline : true,
-// 		outlineColor : Cesium.Color.BLACK
-// 	}
-// });
-
-// blueBox.description='\
-// <p>\ 这是一个部分在地底下，部分在地面上的蓝色不透明的盒子</p>';
-
-
-// var redBox=viewer.entities.add({
-// 	id:'red',
-// 	name:'红色盒子',
-// 	position: Cesium.Cartesian3.fromDegrees(116.300, 39.9894, 30.600143),
-// 	box:{
-// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-// 		material : Cesium.Color.RED.withAlpha(1.0),
-// 		outline : true,
-// 		outlineColor : Cesium.Color.BLACK
-// 	}
-// });
-
-// redBox.description='\
-// <p>\ 这是一个部分在地底下，部分在地面上的红色不透明的盒子</p>';
-
-// var yellowBox=viewer.entities.add({
-// 	id:'yellow',
-// 	name:'黄色盒子',
-// 	position: Cesium.Cartesian3.fromDegrees(116.295, 39.9894,30.600143),
-// 	box:{
-// 		dimensions : new Cesium.Cartesian3(90.0,90.0,150.0),
-// 		material : Cesium.Color.YELLOW.withAlpha(1.0),
-// 		outline : true,
-// 		outlineColor : Cesium.Color.BLACK
-// 	}
-// });
-// yellowBox.description='\
-// <p>\ 这是一个部分在地底下，部分在地面上的黄色不透明的盒子</p>';
 
 
 /*********************************************模型编辑************************************************/
@@ -524,15 +482,15 @@ var count =0;
 
 /*********************************************场景截图代码************************************************/
 function saveToFile() {
-		        let canvas = viewer.scene.canvas;
-		        let image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-		
-		        let link = document.createElement("a");
-		        let blob = dataURLtoBlob(image);
-		        let objurl = URL.createObjectURL(blob);
-		        link.download = "scene.png";
-		        link.href = objurl;
-		        link.click();
+  let canvas = viewer.scene.canvas;
+  let image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+
+  let link = document.createElement("a");
+  let blob = dataURLtoBlob(image);
+  let objurl = URL.createObjectURL(blob);
+  link.download = "scene.png";
+  link.href = objurl;
+  link.click();
 }
 
 function dataURLtoBlob(dataurl) {
@@ -612,7 +570,7 @@ function clearOneModel()
 	
 /*********************************************模型添加函数结束************************************************/
 
-
+/*********************************************经纬度定位*****************************************************/
 function fly2Mylonlat()
 {
 	var m_lon = document.getElementById("myLon").value;
@@ -621,147 +579,409 @@ function fly2Mylonlat()
 	    destination : Cesium.Cartesian3.fromDegrees(m_lon, m_lat, 200.0)
 	});
 }
+/*********************************************经纬度定位结束*************************************************/
 
 
 
+/*********************************************第一人称视角操作*********************************************/
+function startTheFirstPerson(){
+	var m_position = getCenterPosition();
+	viewer.camera.flyTo({
+	    destination : Cesium.Cartesian3.fromDegrees(m_position.lon, m_position.lat, 1.75),
+		 orientation: {
+							heading: viewer.scene.camera.heading,
+							pitch: Cesium.Math.toRadians(0.0),
+							roll: Cesium.Math.toRadians(0.0),
+					  },
+	});
+	var scene = viewer.scene;
+	var canvas = viewer.canvas;
+	canvas.setAttribute("tabindex", "0");
+	canvas.onclick = function () {
+	canvas.focus();
+	};
+	
+	scene.screenSpaceCameraController.enableRotate = false;
+	scene.screenSpaceCameraController.enableTranslate = false;
+	scene.screenSpaceCameraController.enableZoom = false;
+	scene.screenSpaceCameraController.enableTilt = false;
+	scene.screenSpaceCameraController.enableLook = false;
+	
+	var flags = {
+		  looking: false,
+		  moveForward: false,
+		  moveBackward: false,
+		  moveUp: false,
+		  moveDown: false,
+		  moveLeft: false,
+		  moveRight: false,
+	};
+	
+	var startMousePosition;
+	var mousePosition;
+	var first_handler = new Cesium.ScreenSpaceEventHandler(canvas);
+	
+	first_handler.setInputAction(function (movement) {
+	  flags.looking = true;
+	  mousePosition = startMousePosition = Cesium.Cartesian3.clone(
+	    movement.position
+	  );
+	}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+	
+	first_handler.setInputAction(function (movement) {
+	  mousePosition = movement.endPosition;
+	}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+	
+	first_handler.setInputAction(function (position) {
+	  flags.looking = false;
+	}, Cesium.ScreenSpaceEventType.LEFT_UP);
+	
+	first_handler.setInputAction(function (position) {
+		viewer.camera.flyTo({
+		 destination : Cesium.Cartesian3.fromRadians(viewer.camera.positionCartographic.longitude, viewer.camera.positionCartographic.latitude, 300),
+		 orientation: {
+							heading: viewer.scene.camera.heading,
+							pitch: Cesium.Math.toRadians(-90.0),
+							roll: Cesium.Math.toRadians(0.0),
+					  }
+		 });
+		scene.screenSpaceCameraController.enableRotate = true;
+		scene.screenSpaceCameraController.enableTranslate = true;
+		scene.screenSpaceCameraController.enableZoom = true;
+		scene.screenSpaceCameraController.enableTilt = true;
+		scene.screenSpaceCameraController.enableLook = true;
+		first_handler.destroy();
+	  viewer.clock.onTick.removeEventListener(firstPersonMove);
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+	
+	function getFlagForKeyCode(keyCode) {
+	  switch (keyCode) {
+	    case "W".charCodeAt(0):
+	      return "moveForward";
+	    case "S".charCodeAt(0):
+	      return "moveBackward";
+	    case "Q".charCodeAt(0):
+	      return "moveUp";
+	    case "E".charCodeAt(0):
+	      return "moveDown";
+	    case "D".charCodeAt(0):
+	      return "moveRight";
+	    case "A".charCodeAt(0):
+	      return "moveLeft";
+	    default:
+	      return undefined;
+	  }
+	}
+	
+	document.addEventListener(
+	  "keydown",
+	  function (e) {
+	    var flagName = getFlagForKeyCode(e.keyCode);
+	    if (typeof flagName !== "undefined") {
+	      flags[flagName] = true;
+	    }
+	  },
+	  false
+	);
+	
+	document.addEventListener(
+	  "keyup",
+	  function (e) {
+	    var flagName = getFlagForKeyCode(e.keyCode);
+	    if (typeof flagName !== "undefined") {
+	      flags[flagName] = false;
+	    }
+	  },
+	  false
+	);
+	var firstPersonMove = function(clock) {
+	  var camera = viewer.camera;
+	
+	  if (flags.looking) {
+	    var width = canvas.clientWidth;
+	    var height = canvas.clientHeight;
+	    var x = (mousePosition.x - startMousePosition.x) / width;
+	    var y = -(mousePosition.y - startMousePosition.y) / height;
+	    var lookFactor = 0.03;
+	    camera.lookRight(x * lookFactor);
+	    camera.lookUp(y * lookFactor);
+	  }
+	
+	  var moveRate = 0.5;
+	  var rotationRate = viewer.camera.heading;
+	  if (flags.moveForward) {
+	    camera.moveForward(moveRate);
+	  }
+	  if (flags.moveBackward) {
+	    camera.moveBackward(moveRate);
+	  }
+	  if (flags.moveUp) {
+		 viewer.camera.setView({
+		  destination: viewer.camera.position,
+		  orientation: {
+			heading: viewer.camera.heading ,
+			pitch: Cesium.Math.toRadians(45.0),
+			roll: Cesium.Math.toRadians(0.0)
+			}
+		});
+	  }
+	  if (flags.moveDown) {
+	    //camera.moveDown(moveRate);
+		 viewer.camera.setView({
+		   destination: viewer.camera.position,
+		   orientation: {
+		 	heading: viewer.camera.heading ,
+		 	pitch: Cesium.Math.toRadians(-45.0),
+		 	roll: Cesium.Math.toRadians(0.0)
+		 	}
+		 });
+	  }
+	  if (flags.moveLeft) {
+	    camera.moveLeft(moveRate);
+	  }
+	  if (flags.moveRight) {
+	    camera.moveRight(moveRate);
+	  }
+	  if(viewer.camera.positionCartographic.height!=1.75&&(flags.moveForward||flags.moveBackward||flags.moveUp||flags.moveDown||flags.moveLeft||flags.moveRight)||flags.looking)
+	  {
+	  		  viewer.camera.setView({
+	  		     destination: Cesium.Cartesian3.fromRadians(viewer.camera.positionCartographic.longitude, viewer.camera.positionCartographic.latitude, 1.75),
+	  			  orientation: {
+					heading: viewer.camera.heading ,
+					pitch: viewer.camera.pitch,
+					roll: Cesium.Math.toRadians(0.0)
+	  				}
+	  			});
+	  }
+	};
+	viewer.clock.onTick.addEventListener(firstPersonMove);
+}
+/*********************************************第一人称视角操作代码结束******************************************/
 
 
 
-function measureCircle()
+/*********************************************设置路径漫游功能代码*********************************************/
+function getPointLonLat(m_position)
 {
-	calculateCircle(viewer,handler);
+	var cartographic = Cesium.Cartographic.fromCartesian(m_position);
+	var m_lon = Cesium.Math.toDegrees(cartographic.longitude);
+	var m_lat = Cesium.Math.toDegrees(cartographic.latitude);
+	var m_pos = [m_lon,m_lat];
+	return m_pos;
 }
 
-function calculateCircle(viewer,handler){
-		handler = new Cesium.ScreenSpaceEventHandler(viewer.scene._imageryLayerCollection);
-		var positions = [];
-		var poly = null;
-		var cartesian = null;
-		var floatingPoint;
-		
-		var area = 0;
-		var heightArr = [];
-		var $this = this;
-
-		handler.setInputAction(function (movement) {
-				 let ray = viewer.camera.getPickRay(movement.endPosition);
-				 cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-			 if (positions.length >= 2) {
-				  if (!Cesium.defined(poly)) {
-					  poly = new HeightLinePrimitive(positions);
-				  } else {
-						positions.pop();
-						positions.push(cartesian);
-				  }
-				  area = getSpaceArea(positions);
-			 }
-		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-		handler.setInputAction(function(movement){
-				if(positions.length == 0) {
-					positions.push(cartesian.clone());
-					positions.push(cartesian);
-					floatingPoint = viewer.entities.add({
-					name : '原点',
-					position : positions[0],				
-					point : {
-						pixelSize : 5,
-						color : Cesium.Color.RED,
-						outlineColor : Cesium.Color.WHITE,
-						outlineWidth : 2,
-						disableDepthTestDistance:5000000
-						},
-					});
-					heightArr.push(floatingPoint);
-				}
-			}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-		handler.setInputAction(function(movement){
-			handler.destroy();
-			var textDisance=area + "平方公里";
-			var tem = viewer.entities.add({
-				name : '直线距离',
-				position :positions[0],
-				point : {
-					pixelSize : 5,
-					color : Cesium.Color.RED,
-					outlineColor : Cesium.Color.WHITE,
-					outlineWidth : 2,
-					},
-				label : {
-					text : textDisance,
-					font : '18px sans-serif',
-					fillColor : Cesium.Color.GOLD,
-					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-					outlineWidth : 2,
-					verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
-					pixelOffset : new Cesium.Cartesian2(20, -20)
-					}
-			});
-			heightArr.push(tem);
-		 },Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-		 
-		 
-		 
-		var HeightLinePrimitive = (function () {
-			 function _(positions) {
-				 var cartographic = Cesium.Cartographic.fromCartesian(positions[0]);
-				 var lon = Cesium.Math.toDegrees(cartographic.longitude);
-				 var lat = Cesium.Math.toDegrees(cartographic.latitude);
-				 this.options = {
-						name:'高度',
-						id: $this.objId,
-						ellipse:{
-							show : true,
-							// semiMinorAxis : 30.0,
-							// semiMajorAxis : 30.0,
-							height: 0.1,
-							material : Cesium.Color.GREEN.withAlpha(0.5),
-							outline: true,
-							outlineColor: Cesium.Color.WHITE,
-							outlineWidth: 10
-						}
-					};
-				  
-				 this.positions = positions;
-				 this._init();
-			 }
-			 _.prototype._init = function () {
-				var _self = this;
-				var _update_ellipse=function(){
-					return _self.positions[0];
-				}
-				var _semiMinorAxis = function(){
-					var point1cartographic = Cesium.Cartographic.fromCartesian(_self.positions[0]);
-					var point2cartographic = Cesium.Cartographic.fromCartesian(_self.positions[_self.positions.length-1]);
-					/**根据经纬度计算出距离**/
-					var geodesic = new Cesium.EllipsoidGeodesic();
-					geodesic.setEndPoints(point1cartographic, point2cartographic);
-					var s = geodesic.surfaceDistance;
-					return s;
-				};
-				
-			  this.options.position = new Cesium.CallbackProperty(_update_ellipse,false);
-			  this.options.ellipse.semiMinorAxis =new Cesium.CallbackProperty(_semiMinorAxis,false);
-			  this.options.ellipse.semiMajorAxis = new Cesium.CallbackProperty(_semiMinorAxis,false);
-			  heightArr.push(this.options);
-			  viewer.entities.add(this.options);
-			 };
-			 return _;
-		})();
-		
-		function getSpaceArea(positions) {
-					var circle_area = 0;
-					var point1cartographic = Cesium.Cartographic.fromCartesian(positions[0]);
-					var point2cartographic = Cesium.Cartographic.fromCartesian(positions[positions.length - 1]);
-					/**根据经纬度计算出距离**/
-					var geodesic = new Cesium.EllipsoidGeodesic();
-					geodesic.setEndPoints(point1cartographic, point2cartographic);
-					var s = geodesic.surfaceDistance;
-					//返回两点之间的距离
-					s = Math.sqrt(Math.pow(s, 2) + Math.pow(point2cartographic.height - point1cartographic.height, 2));
-					circle_area =Math.pow(s,2)*3.141592653;
-					return (circle_area/1000000).toFixed(6);
+function roamPath()
+{
+	var canvas = viewer.canvas;
+	var roamHandler = new Cesium.ScreenSpaceEventHandler(canvas);
+	var rline = new DrawPolyline({
+                viewer: this.viewer
+            });
+	rline.startCreate();	
+	roamHandler.setInputAction(function (position) {
+		var flytime = 5.0;
+		var marks = rline.getPositions();
+		var f_heading = viewer.scene.camera.heading;
+		if(marks.length>1)
+		{
+			 f_heading = bearing(getPointLonLat(marks[0])[0], getPointLonLat(marks[0])[1], getPointLonLat(marks[1])[0], getPointLonLat(marks[1])[1]);
+			 f_heading = Cesium.Math.toRadians(f_heading)
 		}
-		return heightArr;
+		viewer.scene.camera.flyTo({
+			destination: Cesium.Cartesian3.fromDegrees(getPointLonLat(marks[0])[0],getPointLonLat(marks[0])[1], 1.75),
+			orientation: {
+							heading: f_heading,
+							pitch: Cesium.Math.toRadians(0.0),
+							roll: Cesium.Math.toRadians(0.0),
+					},
+			duration:5   //定位的时间间隔
+		});
+		var marksIndex = 1;
+		if(marks.length!=1)
+		{
+			setTimeout(function(){
+			 		 flyExtent();
+				},5000);
+		}
+		function flyExtent(){
+			setExtentTime(flytime);
+			var Exection = function TimeExecution() {
+			var preIndex = marksIndex - 1;
+				
+			if(marksIndex == 0){
+				preIndex = marks.length -1;
+			}
+				
+			var heading = bearing(getPointLonLat(marks[preIndex])[0], getPointLonLat(marks[preIndex])[1], getPointLonLat(marks[marksIndex])[0], getPointLonLat(marks[marksIndex])[1]);
+			heading = Cesium.Math.toRadians(heading);
+
+			var delTime = Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime);
+			var originLat = marksIndex == 0 ? getPointLonLat(marks[marks.length - 1])[1] : getPointLonLat(marks[marksIndex-1])[1];
+			var originLng = marksIndex == 0 ? getPointLonLat(marks[marks.length - 1])[0] : getPointLonLat(marks[marksIndex-1])[0];
+			var endPosition = Cesium.Cartesian3.fromDegrees(
+				(originLng+(getPointLonLat(marks[marksIndex])[0]-originLng)/flytime*delTime), 
+				(originLat+(getPointLonLat(marks[marksIndex])[1]-originLat)/flytime*delTime), 
+				1.75
+			);
+			viewer.scene.camera.setView({
+				destination: endPosition,
+				orientation: {
+					heading: heading,
+					pitch : viewer.scene.camera.pitch,
+					roll: viewer.scene.camera.roll,
+				}
+			});
+			if (Cesium.JulianDate.compare(viewer.clock.currentTime, viewer.clock.stopTime) >= 0) {
+				viewer.clock.onTick.removeEventListener(Exection);
+				changeCameraHeading();
+			}
+		};
+		viewer.clock.onTick.addEventListener(Exection);
 	}
+
+		function  changeCameraHeading(){
+			var nextIndex = marksIndex + 1;
+			if(marksIndex == marks.length - 1){
+				//nextIndex = 0;
+				return ;
+			}
+
+			var heading = bearing(getPointLonLat(marks[marksIndex])[0], getPointLonLat(marks[marksIndex])[1], getPointLonLat(marks[nextIndex])[0], getPointLonLat(marks[nextIndex])[1]);
+
+			
+			var angle = (heading - Cesium.Math.toDegrees(viewer.camera.heading)) / 2;
+
+			setExtentTime(2);
+
+			var initialHeading = viewer.camera.heading;
+			var Exection = function TimeExecution() {
+
+			var delTime = Cesium.JulianDate.secondsDifference(viewer.clock.currentTime, viewer.clock.startTime);
+			var heading = Cesium.Math.toRadians(delTime * angle) + initialHeading;
+			viewer.scene.camera.setView({
+				orientation: {
+					heading : heading,
+					pitch : viewer.scene.camera.pitch,
+					roll: viewer.scene.camera.roll,
+				}
+			});
+			if (Cesium.JulianDate.compare(viewer.clock.currentTime, viewer.clock.stopTime) >= 0) {
+				viewer.clock.onTick.removeEventListener(Exection);
+				marksIndex = ++marksIndex >= marks.length ? 0 : marksIndex;
+				flyExtent();
+			}
+			};
+			viewer.clock.onTick.addEventListener(Exection);
+		}		
+		rline.destroy();
+		roamHandler.destroy();
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+}
+
+function setExtentTime(time){
+	var startTime = Cesium.JulianDate.fromDate(new Date());
+	var stopTime = Cesium.JulianDate.addSeconds(startTime, time, new Cesium.JulianDate());
+	viewer.clock.startTime = startTime.clone();
+	viewer.clock.stopTime = stopTime.clone();
+	viewer.clock.currentTime = startTime.clone();
+	viewer.clock.clockRange = Cesium.ClockRange.CLAMPED;
+	viewer.clock.clockStep = Cesium.ClockStep.SYSTEM_CLOCK;
+}
+
+function toRadians(degrees) {
+	return degrees * Math.PI / 180;
+}
+
+function toDegrees(radians) {
+	return radians * 180 / Math.PI;
+}
+
+function bearing(startLng, startLat, destLng, destLat){
+	startLat = this.toRadians(startLat);
+	startLng = this.toRadians(startLng);
+	destLat = this.toRadians(destLat);
+	destLng = this.toRadians(destLng);
+					 
+	let y = Math.sin(destLng - startLng) * Math.cos(destLat);
+	let x = Math.cos(startLat) * Math.sin(destLat) - Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+	let brng = Math.atan2(y, x);
+	let brngDgr = this.toDegrees(brng);
+	return (brngDgr + 360) % 360;
+}
+
+
+
+
+
+
+
+
+          var model_entity = viewer.entities.add({
+						  name:"100%",
+						  position: Cesium.Cartesian3.fromDegrees(115.307, 41.9895, 0),
+						  model: {
+							uri: './model/testmodel/obj/1.glb',
+							 maximumScale: 1280,
+							 scale:1
+						   }
+						});
+				
+				
+				
+				// var model_entity1 = viewer.entities.add({
+				// 	  name:"100%",
+				// 	  position: Cesium.Cartesian3.fromDegrees(116.308, 39.9894, 1),
+				// 	  model: {
+				// 		uri: './model/testmodel/obj/1.glb',
+				// 		 maximumScale: 1280,
+				// 		 scale:1
+				// 	   }
+				// 	});
+					
+					
+					// var model_entity2 = viewer.entities.add({
+					// 	  // 设置方向
+					// 	  //orientation: orientation,
+					// 	  //id:'test model',
+					// 	  name:"20%",
+					// 	  position: Cesium.Cartesian3.fromDegrees(116.310, 39.9894, 1),
+					// 	  model: {
+					// 		// 引入模型
+					// 		//uri: 'http://162.105.86.226:8009/static/upload/files/building3.gltf',
+					// 		//uri: './model/source/building3/building3.gltf',
+					// 		uri: './model/testmodel/obj/0.2.glb',
+					// 		// 模型的近似最小像素大小，而不考虑缩放。这可以用来确保即使观看者缩小也可以看到模型。如果为0.0，则不强制使用最小大小
+					// 		// minimumPixelSize: 0,
+					// 		// // 模型的颜色（与模型的渲染颜色混合的属性）
+					// 		// color: Cesium.Color.WHITE.withAlpha(1.0),
+					// 		// // 模型的最大比例大小
+					// 		 maximumScale: 1280,
+					// 		// // 模型的最小比例大小
+					// 		// minimumScale: 1,
+					// 		// // 设置模型轮廓（边框）颜色
+					// 		// silhouetteColor: Cesium.Color.RED,
+					// 		// // 设置模型轮廓（边框）大小
+					// 		// silhouetteSize: 0,
+					// 		// // 是否执行模型动画
+					// 		// runAnimations: true,
+					// 		// // 应用于图像的统一比例。比例大于会1.0放大标签，而比例小于会1.0缩小标签。
+					// 		scale: 1.0,
+					// 		//minimumPixelSize : 128,	
+					// 		// // 是否显示
+					// 		// show: true
+					// 	   }
+					// 	});
+						
+						
+						model_entity.description="这是用来展示信息的部分";
+						changeAnegle(model_entity);
+						function changeAnegle(model)
+						{
+							var origin = model.position._value;
+							var h=Cesium.Math.toRadians(0);
+							var p=Cesium.Math.toRadians(90);
+							var r=Cesium.Math.toRadians(0);
+							var hpr = new Cesium.HeadingPitchRoll(h,p,r);
+							var orientation = Cesium.Transforms.headingPitchRollQuaternion(origin,hpr);
+							model.orientation = orientation;
+						}
